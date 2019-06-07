@@ -2,9 +2,37 @@ using System;
 using Xunit;
 
 namespace GradeBook.Tests
-{    
+{
+    public delegate string WriteLogDelegate(string logMessage); 
     public class TypeTests
-    {    
+    {
+        int count = 0;
+
+        [Fact]
+        public void WriteLogDelegateCanPointToMethod()
+        {
+            WriteLogDelegate log = ReturnMessage;
+
+            //log = new WriteLogDelegate(ReturnMessage);
+            //log = ReturnMessage; //ce qui revient au même
+            log += ReturnMessage;
+            log += IncrementCount; 
+
+            var result = log("Hello!");
+            //Assert.Equal("Hello!", result);
+            Assert.Equal(3, count);
+        }
+
+        string IncrementCount(string message)
+        {
+            count++;
+            return message.ToLower();
+        }
+        string ReturnMessage(string message)
+        {
+            count++;
+            return message;
+        }
 
         [Fact]
         public void Test1()
@@ -34,9 +62,9 @@ namespace GradeBook.Tests
             Assert.Equal("New Name", book1.Name);            
         }
 
-        private void GetBookSetName(out Book book, string name)
+        private void GetBookSetName(out InMemoryBook book, string name)
         {
-            book = new Book(name);
+            book = new InMemoryBook(name);
         }
 
          [Fact]
@@ -48,9 +76,9 @@ namespace GradeBook.Tests
             Assert.Equal("Book 1", book1.Name);            
         }
 
-        private void GetBookSetName(Book book, string name)
+        private void GetBookSetName(InMemoryBook book, string name)
         {
-            book = new Book(name);
+            book = new InMemoryBook(name);
         }
 
         [Fact]
@@ -62,9 +90,23 @@ namespace GradeBook.Tests
             Assert.Equal("New Name", book1.Name);            
         }
 
-        private void SetName(Book book, string name)
+        private void SetName(InMemoryBook book, string name)
         {
             book.Name = name;
+        }
+        [Fact]
+        public void StringsBehaveLikeValueTypes()
+        {
+            string name = "Patrice";
+            var upper = MakeUpperCase(name);
+
+            Assert.Equal("Patrice", name);
+            Assert.Equal("PATRICE", upper);
+        }
+
+        private string MakeUpperCase(string parameter)
+        {
+            return parameter.ToUpper();
         }
 
         [Fact]
@@ -88,9 +130,9 @@ namespace GradeBook.Tests
             Assert.True(Object.ReferenceEquals(book1, book2));
         }
 
-        Book GetBook(string name)
+        InMemoryBook GetBook(string name)
         {
-            return new Book(name);
+            return new InMemoryBook(name);
         }
     }
 }
